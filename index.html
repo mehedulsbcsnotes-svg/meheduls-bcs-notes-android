@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101c3a">
+<title>Mehedul's BCS Notes</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#f2f5fa;color:#17213b}
+header{background:#101c3a;color:#fff;padding:24px 16px;text-align:center;border-bottom:4px solid #d5ad55}
+header h1{font-size:25px;margin:0 0 8px}
+header p{margin:0;color:#e7c979}
+main{max-width:700px;margin:20px auto;padding:0 14px}
+.card{background:white;padding:20px;margin-bottom:16px;border-radius:14px;box-shadow:0 3px 12px #15234712}
+h2{margin-top:0;color:#101c3a}
+select,input{width:100%;padding:13px;border:1px solid #ccd3df;border-radius:8px;font-size:16px;margin:8px 0}
+button{border:0;border-radius:8px;padding:12px 16px;background:#14264d;color:white;font-size:16px;cursor:pointer}
+button:disabled{opacity:.5}
+.option{display:block;background:#f2f5fa;color:#17213b;width:100%;text-align:left;margin:9px 0;border:1px solid #dce2ec}
+.option.selected{border:2px solid #c69a36;background:#fff8e7}
+#result{font-weight:bold;font-size:19px}
+footer{text-align:center;color:#65708a;padding:20px}
+.gold{color:#b48725}
+</style>
+</head>
+<body>
+<header>
+<h1>Mehedul's BCS Notes</h1>
+<p>BCS Preparation • MCQ Practice</p>
+</header>
+<main>
+<section class="card">
+<h2>📝 মডেল টেস্ট</h2>
+<label for="student">পরীক্ষার্থীর নাম</label>
+<input id="student" placeholder="আপনার নাম লিখুন">
+<label for="subject">বিষয় নির্বাচন করুন</label>
+<select id="subject">
+<option value="all">সকল বিষয়</option>
+<option value="bangla">বাংলা</option>
+<option value="bangladesh">বাংলাদেশ বিষয়াবলি</option>
+<option value="computer">তথ্য ও যোগাযোগ প্রযুক্তি</option>
+</select>
+<button onclick="startQuiz()">পরীক্ষা শুরু করুন</button>
+</section>
+<section class="card" id="quiz" hidden>
+<p id="progress"></p>
+<h2 id="question"></h2>
+<div id="options"></div>
+<button id="next" onclick="nextQuestion()">পরবর্তী প্রশ্ন →</button>
+</section>
+<section class="card" id="scoreCard" hidden>
+<h2>📊 পরীক্ষার ফলাফল</h2>
+<p id="result"></p>
+<p id="details"></p>
+<button onclick="startQuiz()">আবার পরীক্ষা দিন</button>
+</section>
+<section class="card">
+<h2>📚 আমাদের লক্ষ্য</h2>
+<p>BCS প্রিলিমিনারি, লিখিত ও ভাইভা প্রস্তুতির জন্য নিয়মিত অনুশীলন করুন।</p>
+<p class="gold">পরিশ্রমই প্রস্তুতির শক্তি।</p>
+</section>
+</main>
+<footer>© Mehedul's BCS Notes</footer>
+<script>
+const bank=[
+{ s:"bangla",q:"বাংলা ভাষার আদি নিদর্শন কোনটি?",o:["শ্রীকৃষ্ণকীর্তন","চর্যাপদ","মঙ্গলকাব্য","গীতাঞ্জলি"],a:1 },
+{ s:"bangla",q:"বাংলা সাহিত্যের প্রাচীন যুগের নিদর্শন কোনটি?",o:["চর্যাপদ","মেঘনাদবধ কাব্য","সোনার তরী","বিষাদ-সিন্ধু"],a:0 },
+{ s:"bangladesh",q:"বাংলাদেশের সংবিধান কার্যকর হয় কবে?",o:["২৬ মার্চ ১৯৭১","১৬ ডিসেম্বর ১৯৭২","১০ জানুয়ারি ১৯৭২","৭ মার্চ ১৯৭১"],a:1 },
+{ s:"bangladesh",q:"বাংলাদেশের জাতীয় সংসদ ভবনের স্থপতি কে?",o:["এফ আর খান","লুই আই কান","মাজহারুল ইসলাম","ল্য করবুসিয়ে"],a:1 },
+{ s:"computer",q:"কম্পিউটারের মস্তিষ্ক বলা হয় কোনটিকে?",o:["RAM","হার্ডডিস্ক","CPU","মনিটর"],a:2 },
+{ s:"computer",q:"ডিজিটাল কম্পিউটার প্রধানত কোন সংখ্যা পদ্ধতি ব্যবহার করে?",o:["দশমিক","বাইনারি","অক্টাল","রোমান"],a:1 }
+];
+let questions=[],index=0,answers=[];
+function startQuiz(){
+const name=document.getElementById("student").value.trim();
+if(!name){alert("প্রথমে পরীক্ষার্থীর নাম লিখুন।");return}
+const subject=document.getElementById("subject").value;
+questions=bank.filter(x=>subject==="all"||x.s===subject);
+index=0;answers=[];
+document.getElementById("scoreCard").hidden=true;
+document.getElementById("quiz").hidden=false;
+showQuestion();
+}
+function showQuestion(){
+const q=questions[index];
+document.getElementById("progress").textContent=`প্রশ্ন ${index+1}/${questions.length}`;
+document.getElementById("question").textContent=q.q;
+const box=document.getElementById("options");box.innerHTML="";
+q.o.forEach((option,i)=>{
+const b=document.createElement("button");
+b.className="option";b.textContent=String.fromCharCode(65+i)+") "+option;
+b.onclick=()=>{
+answers[index]=i;
+[...box.children].forEach(x=>x.classList.remove("selected"));
+b.classList.add("selected");
+};
+box.appendChild(b);
+});
+document.getElementById("next").textContent=index===questions.length-1?"ফলাফল দেখুন":"পরবর্তী প্রশ্ন →";
+}
+function nextQuestion(){
+if(answers[index]===undefined){alert("একটি উত্তর নির্বাচন করুন।");return}
+if(index<questions.length-1){index++;showQuestion();return}
+const score=questions.reduce((n,q,i)=>n+(answers[i]===q.a?1:0),0);
+document.getElementById("quiz").hidden=true;
+document.getElementById("scoreCard").hidden=false;
+document.getElementById("result").textContent=`আপনার নম্বর: ${score}/${questions.length}`;
+document.getElementById("details").textContent=`সঠিক উত্তর: ${score} | ভুল উত্তর: ${questions.length-score}`;
+}
+</script>
+</body>
+</html>
